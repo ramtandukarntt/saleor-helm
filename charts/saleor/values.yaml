@@ -12,6 +12,7 @@ dashboardUrl: http://localhost:9000
 secretKey:
   name: saleor-secret
   key: secret
+  option: false
 
 replicaCount: 1
 
@@ -64,24 +65,42 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
+# Logging level, choose between DEBUG, INFO, WARNING, ERROR, CRITICAL, or FATAL.
+  logLevel: INFO
+  taskEventsMonitoring:
+    enabled: true
+  livenessProbeSettings:
+    enabled: false
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    failureThreshold: 10
+    successThreshold: 1
+    timeoutSeconds: 2
+  readinessProbeSettings:
+    enabled: false
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    failureThreshold: 10
+    successThreshold: 1
+    timeoutSeconds: 2
+resources: 
+# We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
 
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 75
 
 nodeSelector: {}
 
@@ -94,15 +113,22 @@ storefront: {}
 dashboard: {}
 
 worker:
-  loglevel: info
-  replicaCount: 1
-
+  replicaCount: 2
   autoscaling:
     enabled: false
     minReplicas: 1
-    maxReplicas: 100
-    targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 75
+  concurrency:
+    # choose between fixed or auto
+    type: fixed
+    fixed: 2
+    autoMinimum: 2
+    autoMaximum: 6
+  heartBeatIntervalSeconds: 10
+  softTimeLimitSeconds:
+  hardTimeLimitSeconds:
 
   image:
     repository: kbambridge/saleor-worker
