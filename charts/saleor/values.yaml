@@ -140,3 +140,5 @@ migrateHook: {}
 
 redis:
   usePassword: false
+job:
+  enabled: false
